@@ -185,6 +185,15 @@ Também poderão existir anúncios patrocinados e planos específicos para forne
 
 ---
 
+## 🧭 Links
+
+* [🎭 User Stories](documents/user-storys.md)
+* [📋 Requisitos Funcionais](documents/Requisitos-Funcionais.md)
+* [📋 Requisitos Não Funcionais](documents/Requisitos-Não-Funcionais.md)
+* [📋 casos de Uso](documents/Casos-de-Usos.md)
+
+---
+
 # 📌 Princípios do Projeto
 
 O desenvolvimento do projeto deverá seguir alguns princípios:
