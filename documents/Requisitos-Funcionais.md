@@ -7,8 +7,8 @@
 ## RF02 Navegação no Catálogo
 * O sistema deve permitir visualizar produtos
 * O sistema deve permitir navegação por categorias
-* O sistema deve permitir busca por produtos e lojas
-* O sistema deve exibir informações dos produtos e lojas
+* O sistema deve permitir busca por produtos 
+* O sistema deve exibir informações dos produtos 
 
 ## RF03 Intermediação e Comunicação
 * O sistema deve disponibilizar um chat interno em tempo real entre comprador e vendedor
