@@ -4,13 +4,17 @@ const cors = require('cors');
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+
+// Limite expandido para permitir o envio de imagens em Base64
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Conexão com o MySQL do XAMPP
 const db = mysql.createConnection({
   host: 'localhost',
-  user: 'root',      // Usuário padrão do XAMPP
-  password: '',      // Senha padrão (vazia)
+  user: 'root',      
+  port: 3307,
+  password: '',      
   database: 'marketplace'
 });
 
@@ -22,7 +26,8 @@ db.connect((err) => {
   console.log('Conectado ao MySQL do XAMPP!');
 });
 
-// 1. Rota GET: Permite visualizar os usuários no navegador (http://localhost:3000/usuario)
+// --- ROTAS DE USUÁRIO ---
+
 app.get('/usuario', (req, res) => {
   db.query('SELECT id_usuario, usuario_nome, email, tipo FROM usuario', (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -30,7 +35,6 @@ app.get('/usuario', (req, res) => {
   });
 });
 
-// 2. Rota POST: Utilizada pela tela de Login do aplicativo React Native
 app.post('/usuario', (req, res) => {
   const { email, senha } = req.body;
 
@@ -38,9 +42,7 @@ app.post('/usuario', (req, res) => {
     return res.status(400).json({ mensagem: 'E-mail e senha são obrigatórios.' });
   }
 
-  // Verifica se existe o usuário com o email e a senha digitados
   const query = 'SELECT id_usuario, usuario_nome, email, tipo FROM usuario WHERE email = ? AND senha_hash = ?';
-
   db.query(query, [email, senha], (err, results) => {
     if (err) {
       console.error('Erro na consulta:', err);
@@ -48,16 +50,42 @@ app.post('/usuario', (req, res) => {
     }
 
     if (results.length > 0) {
-      // Usuário e senha corretos
-      const usuario = results[0];
       return res.status(200).json({
         mensagem: 'Login realizado com sucesso!',
-        usuario: usuario
+        usuario: results[0]
       });
     } else {
-      // Usuário ou senha incorretos
       return res.status(401).json({ mensagem: 'E-mail ou senha incorretos.' });
     }
+  });
+});
+
+// --- ROTAS DE MENSAGENS (CHAT) ---
+
+app.get('/mensagens', (req, res) => {
+  const query = 'SELECT id_mensagem, id_remetente, id_destinatario, conteudo, lida, enviada_em, url_imagem FROM mensagem ORDER BY enviada_em ASC';
+  
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Erro ao buscar mensagens:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(results);
+  });
+});
+
+app.post('/mensagens', (req, res) => {
+  const { conteudo, id_remetente, id_destinatario, url_imagem } = req.body;
+
+  const query = 'INSERT INTO mensagem (conteudo, id_remetente, id_destinatario, url_imagem) VALUES (?, ?, ?, ?)';
+  
+  // Se não houver imagem, grava como null no banco
+  db.query(query, [conteudo, id_remetente, id_destinatario, url_imagem || null], (err, results) => {
+    if (err) {
+      console.error('Erro ao salvar mensagem:', err);
+      return res.status(500).json({ mensagem: 'Erro interno ao salvar mensagem.' });
+    }
+    res.status(201).json({ mensagem: 'Mensagem salva com sucesso', id: results.insertId });
   });
 });
 
