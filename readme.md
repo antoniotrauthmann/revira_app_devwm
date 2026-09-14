@@ -1,69 +1,102 @@
-## Tech Stack (Tecnologias Utilizadas)
+# Revira App - Marketplace de Reciclagem
 
-* **Frontend:** React, TypeScript, Vite, HTML5, CSS3.
-* **Backend:** Node.js, TypeScript, Express (Servidor REST), CORS.
-* Node.js na versão 24.20.0, certificar antes de rodar npm install.
-* **Banco de Dados:** MariaDB / MySQL (Gerenciado localmente via XAMPP).
-* **Driver de Conexão:** `mysql2/promise` (Conexão direta usando SQL).
+Projeto de aplicativo mobile e web desenvolvido com React Native, Expo Router e Node.js.
 
 ---
 
-## Estrutura
+## Integrantes
+
+* Antonio Andrade Trauthmann
+* Gabriel Henrique Coldebella de Souza
+* Hiago Freitas Jatoba
+* João Igor dos Santos Nascimento
+* Samuel Felipe Sena
+
+---
+
+## Tecnologias Utilizadas
+
+* **Frontend / Mobile:** React Native, Expo, Expo Router, TypeScript.
+* **Backend:** Node.js, Express (API REST), CORS, MySQL2.
+* **Banco de Dados:** MySQL / MariaDB (gerenciado via XAMPP).
+
+---
+
+## Estrutura do Projeto
 
 ```text
 revira_app_ps/
-├── banco/                   <-- O .sql
-├── frontend/                <-- Código visual do React + Vite
-│   └── src/
-│       ├── components/      <-- Botões, inputs e blocos visuais
-│       └── pages/           <-- Telas (Cadastro, Login, Home)
-└── backend/                 <-- Código do servidor Node.js
-    └── src/
-        └── server.ts        <-- Arquivo principal e rotas da API
+├── backend/
+│   ├── banco/
+│   │   └── marketplace.sql     <-- Script SQL com a estrutura e dados do banco
+│   ├── node_modules/
+│   ├── package.json
+│   └── server.js               <-- Servidor Express com as rotas REST
+└── meu-primeiro-app/           <-- Aplicativo React Native (Expo)
+    ├── src/
+    │   ├── app/                <-- Telas e rotas do Expo Router
+    │   │   ├── _layout.tsx     <-- Layout principal do app
+    │   │   ├── index.tsx       <-- Tela de Login
+    │   │   ├── home.tsx        <-- Tela Principal
+    │   │   ├── profile.tsx     <-- Tela de Perfil do Usuario
+    │   │   ├── enderecos.tsx   <-- Tela de Gerenciamento de Enderecos
+    │   │   └── chat.tsx        <-- Tela de Mensagens / Chat
+    │   └── config/
+    │       └── api.ts          <-- Configuracao centralizada da URL da API (Web e Mobile)
+    ├── package.json
+    └── tsconfig.json
 ```
 
 ---
 
 ## Como Rodar o Projeto
 
-Na primeira vez que clona o repositório
-
 ### 1. Configurar o Banco de Dados (XAMPP)
-1. Abra o **XAMPP Control Panel** e clique em **Start** ao lado de **MySQL**.
-2. Clique em **Admin** para abrir o *phpMyAdmin* no seu navegador.
-3. Crie um novo banco de dados chamado `marketplace` (ou o nome definido no arquivo).
-4. Vá na aba **Importar**, selecione o arquivo `.sql` que está na pasta `/banco` deste projeto e clique em **Executar/Ir**.
+
+1. Abra o **XAMPP Control Panel** e inicie o servico **MySQL** (e **Apache** se for utilizar o phpMyAdmin).
+2. Acesse o *phpMyAdmin* no seu navegador (`http://localhost/phpmyadmin`).
+3. Crie um novo banco de dados chamado `marketplace`.
+4. Importe o arquivo `marketplace.sql` localizado na pasta `backend/banco/`.
 
 ### 2. Inicializar o Backend (Node.js)
-Abra um terminal exclusivo na pasta `backend` e execute:
+
+Em um terminal, acesse a pasta do backend e inicie o servidor:
+
 ```bash
-# 1. Entrar na pasta do servidor
+# Entrar na pasta do backend
 cd backend
 
-# 2. Instalar todas as dependências necessárias
+# Instalar as dependencias (caso ainda nao tenha instalado)
 npm install
 
-# 3. Ligar o servidor em modo de desenvolvimento (localhost:3000)
-npm run dev
+# Iniciar o servidor
+node server.js
 ```
 
-### 3. Inicializar o Frontend (React)
-Abra um **segundo terminal** (mantenha o backend rodando) na pasta `frontend` e execute:
+O servidor iniciara na porta **3000** e conectara ao MySQL.
+
+### 3. Inicializar o Aplicativo (Expo)
+
+Em um **segundo terminal**, acesse a pasta do aplicativo e inicie o Expo:
+
 ```bash
-# 1. Entrar na pasta da interface
-cd frontend
+# Entrar na pasta do app
+cd meu-primeiro-app
 
-# 2. Instalar as dependências visuais
+# Instalar as dependencias (caso ainda nao tenha instalado)
 npm install
 
-# 3. Ligar o site no navegador (localhost:5173)
-npm run dev
+# Iniciar o servidor de desenvolvimento do Expo
+npx expo start
 ```
+
+Após o comando iniciar:
+* **No Navegador (Web):** Pressione a tecla `w` no terminal ou acesse `http://localhost:8081`.
+* **No Celular (Expo Go):** Abra o aplicativo Expo Go no seu smartphone e escaneie o QR Code exibido no terminal.
 
 ---
 
-## Avisos Importantes para o Grupo
+## Observacoes Importantes
 
-1. **Nunca envie a pasta `node_modules`:** O arquivo `.gitignore` já está configurado para barrá-la. Sempre que baixar um código novo do repositório, lembre-se de rodar `npm install` se alguma biblioteca nova tiver sido adicionada.
-2. **Conexão com o Banco:** O arquivo `backend/src/server.ts` está configurado para o padrão do XAMPP (usuário `root` e sem senha). Se você alterou a senha do seu XAMPP local, ajuste a linha correspondente no código, mas evite enviar sua senha pessoal para o GitHub.
-3. **Desenvolvimento de Telas e Rotas:** O espaço para criar os cadastros (`app.post`) já está marcado no arquivo `server.ts`. No frontend, utilize o comando `fetch('http://localhost:3000/sua-rota')` para enviar e receber dados do servidor.
+1. **Configuracao da API (api.ts):** O arquivo `src/config/api.ts` detecta automaticamente se o app esta rodando na Web (`http://localhost:3000`) ou em um dispositivo fisico na rede Wi-Fi local.
+2. **Versionamento:** Nao envie as pastas `node_modules` para o controle de versao Git. Sempre execute `npm install` ao clonar ou atualizar o repositorio.

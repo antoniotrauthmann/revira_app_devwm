@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { API_BASE_URL } from '../config/api';
 
 interface Message {
   id: string;
@@ -18,7 +19,7 @@ export default function ChatScreen() {
   const [inputText, setInputText] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   
-  const API_URL = 'http://localhost:3000/mensagens';
+  const API_URL = `${API_BASE_URL}/mensagens`;
 
   useEffect(() => {
     fetchMessages();

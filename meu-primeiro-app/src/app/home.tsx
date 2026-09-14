@@ -42,7 +42,7 @@ export default function HomeScreen() {
             <Text style={styles.cardTitle}>Mensagens</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.card} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.card} activeOpacity={0.7} onPress={() => router.push('/profile')}>
             <MaterialCommunityIcons name="account" size={40} color="#2E7D32" />
             <Text style={styles.cardTitle}>Meu Perfil</Text>
           </TouchableOpacity>

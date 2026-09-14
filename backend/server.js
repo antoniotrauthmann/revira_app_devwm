@@ -60,10 +60,77 @@ app.post('/usuario', (req, res) => {
   });
 });
 
+app.get('/usuario/:id', (req, res) => {
+  const { id } = req.params;
+  const query = 'SELECT id_usuario, usuario_nome, email, tipo, cpf_cnpj, data_cadastro FROM usuario WHERE id_usuario = ?';
+
+  db.query(query, [id], (err, results) => {
+    if (err) {
+      console.error('Erro ao buscar usuário:', err);
+      return res.status(500).json({ mensagem: 'Erro interno no servidor.' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ mensagem: 'Usuário não encontrado.' });
+    }
+
+    res.json(results[0]);
+  });
+});
+
+// --- ROTAS DE ENDEREÇO ---
+
+// Listar endereços de um usuário
+app.get('/endereco/usuario/:id_usuario', (req, res) => {
+  const { id_usuario } = req.params;
+  const query = 'SELECT id_endereco, id_usuario, logradouro, cidade, estado, cep FROM endereco WHERE id_usuario = ? ORDER BY id_endereco DESC';
+  
+  db.query(query, [id_usuario], (err, results) => {
+    if (err) {
+      console.error('Erro ao buscar endereços:', err);
+      return res.status(500).json({ mensagem: 'Erro interno no servidor.' });
+    }
+    res.json(results);
+  });
+});
+
+// Cadastrar novo endereço
+app.post('/endereco', (req, res) => {
+  const { id_usuario, logradouro, cidade, estado, cep } = req.body;
+
+  if (!id_usuario || !cidade || !estado) {
+    return res.status(400).json({ mensagem: 'Usuário, cidade e estado são obrigatórios.' });
+  }
+
+  const query = 'INSERT INTO endereco (id_usuario, logradouro, cidade, estado, cep) VALUES (?, ?, ?, ?, ?)';
+  
+  db.query(query, [id_usuario, logradouro || null, cidade.trim(), estado.trim().toUpperCase(), cep || null], (err, results) => {
+    if (err) {
+      console.error('Erro ao cadastrar endereço:', err);
+      return res.status(500).json({ mensagem: 'Erro interno ao salvar endereço.' });
+    }
+    res.status(201).json({ mensagem: 'Endereço cadastrado com sucesso!', id_endereco: results.insertId });
+  });
+});
+
+// Deletar endereço
+app.delete('/endereco/:id', (req, res) => {
+  const { id } = req.params;
+  const query = 'DELETE FROM endereco WHERE id_endereco = ?';
+
+  db.query(query, [id], (err, results) => {
+    if (err) {
+      console.error('Erro ao deletar endereço:', err);
+      return res.status(500).json({ mensagem: 'Erro interno ao excluir endereço.' });
+    }
+    res.json({ mensagem: 'Endereço removido com sucesso!' });
+  });
+});
+
 // --- ROTAS DE MENSAGENS (CHAT) ---
 
 app.get('/mensagens', (req, res) => {
-  const query = 'SELECT id_mensagem, id_remetente, id_destinatario, conteudo, lida, enviada_em, url_imagem FROM mensagem ORDER BY enviada_em ASC';
+  const query = 'SELECT id_mensagem, id_remetente, id_destinatario, conteudo, lida, enviado_em, url_imagem FROM mensagem ORDER BY enviado_em ASC';
   
   db.query(query, (err, results) => {
     if (err) {
