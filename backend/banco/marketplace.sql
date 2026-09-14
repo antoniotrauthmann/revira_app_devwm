@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Sep 10, 2026 at 02:38 PM
+-- Generation Time: Sep 14, 2026 at 12:24 AM
 -- Server version: 11.8.8-MariaDB
 -- PHP Version: 8.5.9
 
@@ -31,10 +31,13 @@ CREATE TABLE `anuncio` (
   `id_anuncio` int(11) NOT NULL,
   `id_usuario` int(11) NOT NULL,
   `id_material` int(11) NOT NULL,
+  `id_endereco` int(11) DEFAULT NULL,
   `anuncio_titulo` varchar(150) NOT NULL,
   `descricao` text DEFAULT NULL,
   `quantidade` decimal(10,2) NOT NULL,
   `preco` decimal(10,2) NOT NULL,
+  `condicao` varchar(50) DEFAULT NULL,
+  `disponibilidade` enum('imediata','a_combinar') NOT NULL DEFAULT 'imediata',
   `status` enum('ativo','vendido','removido') NOT NULL DEFAULT 'ativo',
   `criado_em` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -87,6 +90,39 @@ CREATE TABLE `coleta` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `denuncia`
+--
+
+CREATE TABLE `denuncia` (
+  `id_denuncia` int(11) NOT NULL,
+  `id_denunciante` int(11) NOT NULL,
+  `id_usuario_denunciado` int(11) DEFAULT NULL,
+  `id_anuncio` int(11) DEFAULT NULL,
+  `motivo` varchar(100) NOT NULL,
+  `descricao` text DEFAULT NULL,
+  `status` enum('aberta','em_analise','resolvida','arquivada') NOT NULL DEFAULT 'aberta',
+  `criado_em` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `destaque`
+--
+
+CREATE TABLE `destaque` (
+  `id_destaque` int(11) NOT NULL,
+  `id_anuncio` int(11) NOT NULL,
+  `data_inicio` datetime NOT NULL,
+  `data_fim` datetime NOT NULL,
+  `valor_pago` decimal(10,2) NOT NULL,
+  `impressoes` int(11) NOT NULL DEFAULT 0,
+  `cliques` int(11) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `endereco`
 --
 
@@ -96,7 +132,9 @@ CREATE TABLE `endereco` (
   `logradouro` varchar(200) DEFAULT NULL,
   `cidade` varchar(100) NOT NULL,
   `estado` char(2) NOT NULL,
-  `cep` varchar(10) DEFAULT NULL
+  `cep` varchar(10) DEFAULT NULL,
+  `latitude` decimal(9,6) DEFAULT NULL,
+  `longitude` decimal(9,6) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -139,6 +177,21 @@ CREATE TABLE `mensagem` (
   `conteudo` text NOT NULL,
   `lida` tinyint(1) NOT NULL DEFAULT 0,
   `enviado_em` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notificacao`
+--
+
+CREATE TABLE `notificacao` (
+  `id_notificacao` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `tipo` varchar(50) NOT NULL,
+  `conteudo` varchar(255) NOT NULL,
+  `lida` tinyint(1) NOT NULL DEFAULT 0,
+  `criado_em` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -211,7 +264,8 @@ CREATE TABLE `usuario` (
 ALTER TABLE `anuncio`
   ADD PRIMARY KEY (`id_anuncio`),
   ADD KEY `id_usuario` (`id_usuario`),
-  ADD KEY `id_material` (`id_material`);
+  ADD KEY `id_material` (`id_material`),
+  ADD KEY `id_endereco` (`id_endereco`);
 
 --
 -- Indexes for table `assinatura`
@@ -237,6 +291,22 @@ ALTER TABLE `coleta`
   ADD PRIMARY KEY (`id_coleta`),
   ADD UNIQUE KEY `id_transacao` (`id_transacao`),
   ADD KEY `id_endereco` (`id_endereco`);
+
+--
+-- Indexes for table `denuncia`
+--
+ALTER TABLE `denuncia`
+  ADD PRIMARY KEY (`id_denuncia`),
+  ADD KEY `id_denunciante` (`id_denunciante`),
+  ADD KEY `id_usuario_denunciado` (`id_usuario_denunciado`),
+  ADD KEY `id_anuncio` (`id_anuncio`);
+
+--
+-- Indexes for table `destaque`
+--
+ALTER TABLE `destaque`
+  ADD PRIMARY KEY (`id_destaque`),
+  ADD KEY `id_anuncio` (`id_anuncio`);
 
 --
 -- Indexes for table `endereco`
@@ -266,6 +336,13 @@ ALTER TABLE `mensagem`
   ADD KEY `id_anuncio` (`id_anuncio`),
   ADD KEY `id_remetente` (`id_remetente`),
   ADD KEY `id_destinatario` (`id_destinatario`);
+
+--
+-- Indexes for table `notificacao`
+--
+ALTER TABLE `notificacao`
+  ADD PRIMARY KEY (`id_notificacao`),
+  ADD KEY `id_usuario` (`id_usuario`);
 
 --
 -- Indexes for table `pagamento`
@@ -325,6 +402,18 @@ ALTER TABLE `coleta`
   MODIFY `id_coleta` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `denuncia`
+--
+ALTER TABLE `denuncia`
+  MODIFY `id_denuncia` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `destaque`
+--
+ALTER TABLE `destaque`
+  MODIFY `id_destaque` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `endereco`
 --
 ALTER TABLE `endereco`
@@ -347,6 +436,12 @@ ALTER TABLE `material`
 --
 ALTER TABLE `mensagem`
   MODIFY `id_mensagem` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `notificacao`
+--
+ALTER TABLE `notificacao`
+  MODIFY `id_notificacao` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `pagamento`
@@ -380,6 +475,7 @@ ALTER TABLE `usuario`
 -- Constraints for table `anuncio`
 --
 ALTER TABLE `anuncio`
+  ADD CONSTRAINT `anuncio_endereco_fk` FOREIGN KEY (`id_endereco`) REFERENCES `endereco` (`id_endereco`),
   ADD CONSTRAINT `anuncio_material_fk` FOREIGN KEY (`id_material`) REFERENCES `material` (`id_material`),
   ADD CONSTRAINT `anuncio_usuario_fk` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`);
 
@@ -406,6 +502,20 @@ ALTER TABLE `coleta`
   ADD CONSTRAINT `coleta_transacao_fk` FOREIGN KEY (`id_transacao`) REFERENCES `transacao` (`id_transacao`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `denuncia`
+--
+ALTER TABLE `denuncia`
+  ADD CONSTRAINT `denuncia_anuncio_fk` FOREIGN KEY (`id_anuncio`) REFERENCES `anuncio` (`id_anuncio`),
+  ADD CONSTRAINT `denuncia_denunciante_fk` FOREIGN KEY (`id_denunciante`) REFERENCES `usuario` (`id_usuario`),
+  ADD CONSTRAINT `denuncia_usuario_denunciado_fk` FOREIGN KEY (`id_usuario_denunciado`) REFERENCES `usuario` (`id_usuario`);
+
+--
+-- Constraints for table `destaque`
+--
+ALTER TABLE `destaque`
+  ADD CONSTRAINT `destaque_anuncio_fk` FOREIGN KEY (`id_anuncio`) REFERENCES `anuncio` (`id_anuncio`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `endereco`
 --
 ALTER TABLE `endereco`
@@ -424,6 +534,12 @@ ALTER TABLE `mensagem`
   ADD CONSTRAINT `mensagem_anuncio_fk` FOREIGN KEY (`id_anuncio`) REFERENCES `anuncio` (`id_anuncio`) ON DELETE SET NULL,
   ADD CONSTRAINT `mensagem_destinatario_fk` FOREIGN KEY (`id_destinatario`) REFERENCES `usuario` (`id_usuario`),
   ADD CONSTRAINT `mensagem_remetente_fk` FOREIGN KEY (`id_remetente`) REFERENCES `usuario` (`id_usuario`);
+
+--
+-- Constraints for table `notificacao`
+--
+ALTER TABLE `notificacao`
+  ADD CONSTRAINT `notificacao_usuario_fk` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `pagamento`
