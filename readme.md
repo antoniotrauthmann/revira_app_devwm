@@ -10,7 +10,7 @@ Projeto de aplicativo mobile e web desenvolvido com React Native, Expo Router e 
 * Gabriel Henrique Coldebella de Souza
 * Hiago Freitas Jatoba
 * João Igor dos Santos Nascimento
-* Samuel Felipe Sena
+* Samuel Felipe de Sena Estevao
 
 ---
 

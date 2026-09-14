@@ -102,7 +102,7 @@ const handleLogin = async () => {
           <View style={styles.iconCircle}>
             <MaterialCommunityIcons name="recycle" size={60} color="#2E7D32" />
           </View>
-          <Text style={styles.title}>EcoRecicla</Text>
+          <Text style={styles.title}>ReviraApp</Text>
           <Text style={styles.subtitle}>Transforme o futuro reciclando hoje</Text>
         </View>
 
