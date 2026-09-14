@@ -14,20 +14,17 @@ export default function HomeScreen() {
   const router = useRouter();
 
   const handleLogout = () => {
-    // Retorna para a tela de login limpando o histórico
     router.replace('/');
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Cabeçalho */}
         <View style={styles.header}>
           <Text style={styles.greeting}>Olá, Bem-vindo(a)! 👋</Text>
           <Text style={styles.subtitle}>O que deseja fazer hoje?</Text>
         </View>
 
-        {/* Grid do Menu Principal */}
         <View style={styles.menuGrid}>
           <TouchableOpacity style={styles.card} activeOpacity={0.7}>
             <MaterialCommunityIcons name="store" size={40} color="#2E7D32" />
@@ -39,18 +36,18 @@ export default function HomeScreen() {
             <Text style={styles.cardTitle}>Coletas</Text>
           </TouchableOpacity>
 
+          {/* Novo botão de Mensagens conectando com a rota /chat */}
+          <TouchableOpacity style={styles.card} activeOpacity={0.7} onPress={() => router.push('/chat')}>
+            <MaterialCommunityIcons name="message-text" size={40} color="#2E7D32" />
+            <Text style={styles.cardTitle}>Mensagens</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.card} activeOpacity={0.7}>
             <MaterialCommunityIcons name="account" size={40} color="#2E7D32" />
             <Text style={styles.cardTitle}>Meu Perfil</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.card} activeOpacity={0.7}>
-            <MaterialCommunityIcons name="cog" size={40} color="#2E7D32" />
-            <Text style={styles.cardTitle}>Configurações</Text>
-          </TouchableOpacity>
         </View>
 
-        {/* Botão Sair */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <MaterialCommunityIcons name="logout" size={20} color="#D32F2F" />
           <Text style={styles.logoutText}>Sair da Conta</Text>
@@ -61,33 +58,12 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F4F9F4',
-  },
-  scrollContainer: {
-    padding: 24,
-  },
-  header: {
-    marginBottom: 28,
-    marginTop: 20,
-  },
-  greeting: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1B5E20',
-  },
-  subtitle: {
-    fontSize: 15,
-    color: '#666',
-    marginTop: 4,
-  },
-  menuGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 16,
-  },
+  container: { flex: 1, backgroundColor: '#F4F9F4' },
+  scrollContainer: { padding: 24 },
+  header: { marginBottom: 28, marginTop: 20 },
+  greeting: { fontSize: 24, fontWeight: 'bold', color: '#1B5E20' },
+  subtitle: { fontSize: 15, color: '#666', marginTop: 4 },
+  menuGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 16 },
   card: {
     backgroundColor: '#FFF',
     width: '47%',
@@ -103,12 +79,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 4,
   },
-  cardTitle: {
-    marginTop: 10,
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2E7D32',
-  },
+  cardTitle: { marginTop: 10, fontSize: 16, fontWeight: '600', color: '#2E7D32' },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -119,9 +90,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFEBEE',
     gap: 8,
   },
-  logoutText: {
-    color: '#D32F2F',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
+  logoutText: { color: '#D32F2F', fontWeight: 'bold', fontSize: 16 },
 });
