@@ -5,102 +5,159 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StatusBar,
-  Alert,
 } from 'react-native';
-/*teste*/
-export default function App() {
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router'; // 👈 Import da navegação do Expo Router
+
+export default function LoginScreen() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [senha, setSenha] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    if (!email || !password) {
-      Alert.alert('Campos obrigatórios', 'Por favor, preencha o e-mail e a senha.');
-      return;
+  const router = useRouter(); // 👈 Hook para controlar a navegação
+
+  // Substitua pelo IP da sua máquina se for testar no celular físico
+  const API_URL = 'http://192.168.1.6:3000/usuario';
+
+const handleLogin = async () => {
+  console.log('Iniciando tentativa de login...'); // Exibido no Console do Navegador (F12)
+
+  if (!email.trim() || !senha.trim()) {
+    const mensagem = 'Por favor, preencha o e-mail e a senha.';
+    if (Platform.OS === 'web') {
+      alert(mensagem);
+    } else {
+      Alert.alert('Atenção', mensagem);
     }
+    return;
+  }
 
-    Alert.alert('Sucesso', 'Bem-vindo de volta ao ReviraApp!');
-  };
+  setLoading(true);
+
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email.trim(),
+        senha: senha.trim(),
+      }),
+    });
+
+    const data = await response.json();
+    console.log('Resposta do servidor:', data);
+
+    if (response.ok) {
+      const usuarioNome = data.usuario?.usuario_nome || 'Usuário';
+
+      if (Platform.OS === 'web') {
+        alert(`Olá, ${usuarioNome}! Login realizado com sucesso.`);
+        router.replace('/home'); // Navegação direta para Web
+      } else {
+        Alert.alert(
+          'Bem-vindo(a)!',
+          `Olá, ${usuarioNome}! Login realizado com sucesso.`,
+          [
+            {
+              text: 'Continuar',
+              onPress: () => router.replace('/home'),
+            },
+          ]
+        );
+      }
+    } else {
+      const erroMsg = data.mensagem || 'E-mail ou senha incorretos.';
+      if (Platform.OS === 'web') alert(erroMsg);
+      else Alert.alert('Erro ao entrar', erroMsg);
+    }
+  } catch (error) {
+    console.error('Erro na requisição:', error);
+    const conexaoMsg = 'Não foi possível conectar ao servidor. Verifique se o Node.js está rodando.';
+    if (Platform.OS === 'web') alert(conexaoMsg);
+    else Alert.alert('Erro de Conexão', conexaoMsg);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <StatusBar barStyle="dark-content" backgroundColor="black" />
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Topo / Logotipo */}
+      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+        {/* Logo / Cabeçalho */}
         <View style={styles.header}>
-          <View style={styles.logoIconContainer}>
-            <Text style={styles.logoEmoji}>♻️</Text>
+          <View style={styles.iconCircle}>
+            <MaterialCommunityIcons name="recycle" size={60} color="#2E7D32" />
           </View>
-          <Text style={styles.title}>
-            Revira<Text style={styles.titleHighlight}>App</Text>
-          </Text>
-          <Text style={styles.subtitle}>Recicle hoje, transforme o amanhã</Text>
+          <Text style={styles.title}>EcoRecicla</Text>
+          <Text style={styles.subtitle}>Transforme o futuro reciclando hoje</Text>
         </View>
 
         {/* Formulário */}
-        <View style={styles.formContainer}>
-          <Text style={styles.welcomeText}>Acesse sua conta</Text>
-
-          {/* Campo de E-mail */}
+        <View style={styles.form}>
+          <Text style={styles.label}>E-mail</Text>
           <View style={styles.inputContainer}>
+            <MaterialCommunityIcons name="email-outline" size={20} color="#666" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Digite seu e-mail"
-              placeholderTextColor="#90A4AE"
-              keyboardType="email-address"
-              autoCapitalize="none"
+              placeholderTextColor="#999"
               value={email}
               onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
             />
           </View>
 
-          {/* Campo de Senha */}
+          <Text style={styles.label}>Senha</Text>
           <View style={styles.inputContainer}>
+            <MaterialCommunityIcons name="lock-outline" size={20} color="#666" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Digite sua senha"
-              placeholderTextColor="#90A4AE"
-              secureTextEntry={!showPassword}
-              value={password}
-              onChangeText={setPassword}
+              placeholderTextColor="#999"
+              value={senha}
+              onChangeText={setSenha}
+              secureTextEntry
+              autoCapitalize="none"
             />
-            <TouchableOpacity 
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.togglePasswordButton}
-            >
-              <Text style={styles.togglePasswordText}>
-                {showPassword ? 'Ocultar' : 'Mostrar'}
-              </Text>
-            </TouchableOpacity>
           </View>
 
-          {/* Esqueceu a Senha */}
           <TouchableOpacity style={styles.forgotPasswordButton}>
             <Text style={styles.forgotPasswordText}>Esqueceu a senha?</Text>
           </TouchableOpacity>
 
           {/* Botão Entrar */}
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin} activeOpacity={0.8}>
-            <Text style={styles.loginButtonText}>Entrar</Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleLogin}
+            disabled={loading}
+            activeOpacity={0.8}
+          >
+            {loading ? (
+              <ActivityIndicator color="#FFF" />
+            ) : (
+              <Text style={styles.buttonText}>Entrar</Text>
+            )}
           </TouchableOpacity>
-        </View>
 
-        {/* Rodapé / Cadastrar */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Ainda não faz parte? </Text>
-          <TouchableOpacity>
-            <Text style={styles.signUpText}>Criar conta</Text>
-          </TouchableOpacity>
+          {/* Rodapé / Cadastre-se */}
+          <View style={styles.registerContainer}>
+            <Text style={styles.registerText}>Ainda não tem uma conta? </Text>
+            <TouchableOpacity>
+              <Text style={styles.registerBoldText}>Cadastre-se</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -110,92 +167,72 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4F9F4', 
+    backgroundColor: '#F4F9F4',
   },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 40,
+    padding: 24,
   },
   header: {
     alignItems: 'center',
     marginBottom: 32,
   },
-  logoIconContainer: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
+  iconCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     backgroundColor: '#E8F5E9',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#C8E6C9',
-  },
-  logoEmoji: {
-    fontSize: 44,
+    marginBottom: 16,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#1B5E20',
   },
-  titleHighlight: {
-    color: '#388E3C',
-  },
   subtitle: {
     fontSize: 14,
-    color: '#558B2F',
+    color: '#4CAF50',
     marginTop: 4,
   },
-  formContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
+  form: {
+    width: '100%',
   },
-  welcomeText: {
-    fontSize: 18,
+  label: {
+    fontSize: 14,
     fontWeight: '600',
-    color: '#2E7D32',
-    marginBottom: 20,
-    textAlign: 'center',
+    color: '#333',
+    marginBottom: 6,
+    marginTop: 12,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9FBF9',
+    backgroundColor: '#FFF',
     borderWidth: 1,
-    borderColor: '#E0E8E1',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    height: 52,
-    marginBottom: 16,
+    borderColor: '#C8E6C9',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    height: 50,
   },
-  inputEmoji: {
-    fontSize: 18,
-    marginRight: 10,
+  inputIcon: {
+    marginRight: 8,
   },
   input: {
     flex: 1,
-    fontSize: 15,
-    color: '#263238',
-  },
-  togglePasswordButton: {
-    padding: 4,
-  },
-  togglePasswordText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#2E7D32',
+    fontSize: 16,
+    color: '#333',
   },
   forgotPasswordButton: {
     alignSelf: 'flex-end',
+    marginTop: 8,
     marginBottom: 20,
   },
   forgotPasswordText: {
@@ -203,81 +240,35 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '500',
   },
-  loginButton: {
+  button: {
     backgroundColor: '#2E7D32',
-    borderRadius: 12,
     height: 52,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#2E7D32',
-    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 4,
+    shadowRadius: 3,
   },
-  loginButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#E0E8E1',
-  },
-  dividerText: {
-    marginHorizontal: 12,
-    color: '#78909C',
-    fontSize: 12,
-  },
-  socialContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  socialButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#E0E8E1',
-    borderRadius: 12,
-    height: 48,
-    backgroundColor: '#FFFFFF',
-    gap: 8,
-  },
-  socialGoogleBadge: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#DB4437',
-  },
-  socialAppleBadge: {
+  buttonText: {
+    color: '#FFF',
     fontSize: 18,
-    color: '#000000',
+    fontWeight: 'bold',
   },
-  socialButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#37474F',
-  },
-  footer: {
+  registerContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 28,
+    marginTop: 24,
   },
-  footerText: {
-    color: '#546E7A',
+  registerText: {
+    color: '#666',
     fontSize: 14,
   },
-  signUpText: {
+  registerBoldText: {
     color: '#2E7D32',
-    fontSize: 14,
     fontWeight: 'bold',
+    fontSize: 14,
   },
 });
