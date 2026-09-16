@@ -13,6 +13,8 @@ import {
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router'; // 👈 Import da navegação do Expo Router
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '../config/api';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -21,8 +23,7 @@ export default function LoginScreen() {
 
   const router = useRouter(); // 👈 Hook para controlar a navegação
 
-  // Substitua pelo IP da sua máquina se for testar no celular físico
-  const API_URL = 'http://192.168.1.6:3000/usuario';
+  const API_URL = `${API_BASE_URL}/usuario`;
 
 const handleLogin = async () => {
   console.log('Iniciando tentativa de login...'); // Exibido no Console do Navegador (F12)
@@ -56,6 +57,9 @@ const handleLogin = async () => {
 
     if (response.ok) {
       const usuarioNome = data.usuario?.usuario_nome || 'Usuário';
+
+      // Salva os dados do usuário no AsyncStorage para persistência da sessão
+      await AsyncStorage.setItem('@usuario_logado', JSON.stringify(data.usuario));
 
       if (Platform.OS === 'web') {
         alert(`Olá, ${usuarioNome}! Login realizado com sucesso.`);
@@ -98,7 +102,7 @@ const handleLogin = async () => {
           <View style={styles.iconCircle}>
             <MaterialCommunityIcons name="recycle" size={60} color="#2E7D32" />
           </View>
-          <Text style={styles.title}>EcoRecicla</Text>
+          <Text style={styles.title}>ReviraApp</Text>
           <Text style={styles.subtitle}>Transforme o futuro reciclando hoje</Text>
         </View>
 
