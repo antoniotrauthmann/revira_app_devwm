@@ -22,7 +22,7 @@ export default function LoginScreen() {
   const router = useRouter(); // 👈 Hook para controlar a navegação
 
   // Substitua pelo IP da sua máquina se for testar no celular físico
-  const API_URL = 'http://192.168.1.6:3000/usuario';
+  const API_URL = 'http://localhost:3000/usuario';
 
 const handleLogin = async () => {
   console.log('Iniciando tentativa de login...'); // Exibido no Console do Navegador (F12)
